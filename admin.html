@@ -1067,7 +1067,7 @@
         const base64Content = btoa(unescape(encodeURIComponent(updatedJsonStr)));
 
         const payload = {
-          message: `Update monthly report data [skip ci] - ${new Date().toISOString()}`,
+          message: `Update monthly report data - ${new Date().toISOString()}`,
           content: base64Content,
           branch: branch
         };

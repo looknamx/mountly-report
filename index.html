@@ -568,9 +568,13 @@
         } catch(e) {}
       }
 
-      // 4. พยายาม fetch data.json ตัวจริงล่าสุดจากเซิร์ฟเวอร์
+      // 4. พยายาม fetch data.json ตัวจริงล่าสุดจาก GitHub แบบ Real-time ทันที
       try {
-        const res = await fetch('./data.json?v=' + Date.now());
+        const rawUrl = 'https://raw.githubusercontent.com/looknamx/mountly-report/main/data.json?v=' + Date.now();
+        let res = await fetch(rawUrl);
+        if (!res.ok) {
+          res = await fetch('./data.json?v=' + Date.now());
+        }
         if (res.ok) {
           const remoteData = await res.json();
           if (remoteData && remoteData.years && remoteData.years.length > 0) {
@@ -579,7 +583,7 @@
           }
         }
       } catch (err) {
-        // หากเปิดผ่าน file:/// หรือออฟไลน์ จะใช้ข้อมูลเริ่มต้นที่แสดงไว้แล้วอย่างราบรื่น
+        // หากเปิดแบบออฟไลน์ จะใช้ข้อมูลเริ่มต้นที่แสดงไว้แล้วอย่างราบรื่น
       }
     }
 
