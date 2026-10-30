@@ -1047,11 +1047,9 @@
         async function fetchFreshSha() {
           const freshUrl = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}&_t=${Date.now()}`;
           const res = await fetch(freshUrl, {
-            cache: 'no-store',
             headers: {
               'Authorization': `Bearer ${token}`,
-              'Accept': 'application/vnd.github.v3+json',
-              'Cache-Control': 'no-cache, no-store, must-revalidate'
+              'Accept': 'application/vnd.github.v3+json'
             }
           });
           if (res.ok) {
