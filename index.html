@@ -410,34 +410,6 @@
       color: var(--text-muted);
       font-size: 0.95rem;
     }
-
-    /* Admin quick link button (discreet) */
-    .admin-float-link {
-      position: fixed;
-      bottom: 12px;
-      right: 12px;
-      opacity: 0.35;
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      color: #64748b;
-      padding: 6px 10px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: var(--transition);
-      z-index: 99;
-    }
-
-    .admin-float-link:hover {
-      opacity: 1;
-      background: var(--primary-color);
-      color: #ffffff;
-      border-color: var(--primary-color);
-      box-shadow: var(--shadow-md);
-    }
   </style>
 </head>
 <body>
@@ -478,11 +450,6 @@
       <!-- Dynamic Month Cards -->
     </main>
   </div>
-
-  <!-- Quick discreet link to admin page -->
-  <a href="admin.html" class="admin-float-link" title="เข้าสู่ระบบจัดการข้อมูล (หลังบ้าน)">
-    <i class="fa-solid fa-gear"></i> จัดการลิงก์
-  </a>
 
   <script>
     // ฐานข้อมูลเริ่มต้น เพื่อให้แสดงผลทันที 0ms แม้จะอยู่ใน iframe ข้ามโดเมน หรือออฟไลน์
