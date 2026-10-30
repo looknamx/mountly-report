@@ -1043,20 +1043,25 @@
       showAlert('กำลังเชื่อมต่อไปยัง GitHub API...', 'success');
 
       try {
-        // 1. Get current file SHA if exists
-        let currentSha = null;
-        const getUrl = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
-        const getRes = await fetch(getUrl, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
+        // 1. ดึง SHA ล่าสุดของไฟล์ data.json โดยไม่ใช้แคชเบราว์เซอร์
+        async function fetchFreshSha() {
+          const freshUrl = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}&_t=${Date.now()}`;
+          const res = await fetch(freshUrl, {
+            cache: 'no-store',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+              'Cache-Control': 'no-cache, no-store, must-revalidate'
+            }
+          });
+          if (res.ok) {
+            const fileData = await res.json();
+            return fileData.sha;
           }
-        });
-
-        if (getRes.ok) {
-          const fileData = await getRes.json();
-          currentSha = fileData.sha;
+          return null;
         }
+
+        let currentSha = await fetchFreshSha();
 
         // 2. Prepare payload
         const updatedJsonStr = JSON.stringify(currentData, null, 2);
@@ -1074,7 +1079,7 @@
 
         // 3. Put content
         const putUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
-        const putRes = await fetch(putUrl, {
+        let putRes = await fetch(putUrl, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -1083,6 +1088,23 @@
           },
           body: JSON.stringify(payload)
         });
+
+        // หากเกิด 409 Conflict (SHA ชนกันเนื่องจากมีเวอร์ชันใหม่กว่า) ให้ดึง SHA ล่าสุดแล้วลองใหม่อีก 1 ครั้งอัตโนมัติ
+        if (putRes.status === 409) {
+          currentSha = await fetchFreshSha();
+          if (currentSha) {
+            payload.sha = currentSha;
+            putRes = await fetch(putUrl, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.github.v3+json'
+              },
+              body: JSON.stringify(payload)
+            });
+          }
+        }
 
         if (putRes.ok) {
           showAlert('✅ อัปเดตข้อมูลขึ้น GitHub สำเร็จแล้ว! หน้าเว็บจริงจะอัปเดตอัตโนมัติ', 'success');
