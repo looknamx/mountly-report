@@ -410,8 +410,11 @@
       <a href="index.html" target="_blank" class="btn btn-outline btn-sm">
         <i class="fa-solid fa-arrow-up-right-from-square"></i> ดูหน้าแสดงผลจริง
       </a>
-      <button type="button" class="btn btn-success" onclick="saveToLocalStorageAndNotify()">
-        <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูล
+      <button type="button" class="btn btn-outline btn-sm" onclick="downloadJSONFile()">
+        <i class="fa-solid fa-download"></i> ดาวน์โหลด data.json
+      </button>
+      <button type="button" class="btn btn-success" onclick="openSavePublishModal()">
+        <i class="fa-solid fa-cloud-arrow-up"></i> บันทึก / เผยแพร่ขึ้นเว็บ
       </button>
     </div>
   </nav>
@@ -582,6 +585,55 @@
       <div style="display: flex; justify-content: flex-end; gap: 8px;">
         <button type="button" class="btn btn-outline" onclick="closeAddYearModal()">ยกเลิก</button>
         <button type="button" class="btn btn-primary" onclick="confirmAddYear()">ยืนยันเพิ่มปี</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Save & Publish Choice -->
+  <div id="savePublishModal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 540px;">
+      <h3 class="modal-title">
+        <i class="fa-solid fa-cloud-arrow-up" style="color: var(--primary);"></i> บันทึกและเผยแพร่ข้อมูลขึ้นเว็บ
+      </h3>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px;">
+        เนื่องจากระบบฝากไว้บน GitHub ข้อมูลการแก้ไขต้องนำไปอัปเดตที่ไฟล์ <code>data.json</code> บน GitHub หน้าเว็บจริงจึงจะเปลี่ยนตามครับ:
+      </p>
+
+      <!-- Step 1 & 2 Choice -->
+      <div style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px; padding: 16px; margin-bottom: 14px;">
+        <div style="font-weight: 600; color: #166534; font-size: 0.95rem; margin-bottom: 6px;">
+          ⭐ วิธีที่ 1: ดาวน์โหลดแล้วลากวางบน GitHub (แนะนำ - สะดวกสุด)
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-success" style="font-size: 0.85rem;" onclick="downloadAndPromptUpload()">
+            <i class="fa-solid fa-download"></i> 1. กดดาวน์โหลด data.json
+          </button>
+          <a href="https://github.com/looknamx/mountly-report/upload/main" target="_blank" class="btn btn-primary" style="font-size: 0.85rem;">
+            <i class="fa-brands fa-github"></i> 2. เปิดหน้าลากไฟล์วางบน GitHub
+          </a>
+        </div>
+        <div style="font-size: 0.78rem; color: #15803d; margin-top: 8px;">
+          * เมื่อดาวน์โหลดเสร็จ กดปุ่มที่ 2 เพื่อเปิดหน้าเว็บ GitHub แล้วลากไฟล์ <code>data.json</code> วางแล้วกด Commit ได้ทันที
+        </div>
+      </div>
+
+      <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+        <div style="font-weight: 600; color: var(--text); font-size: 0.9rem; margin-bottom: 4px;">
+          🚀 วิธีที่ 2: ใช้ GitHub Token (Auto Commit)
+        </div>
+        <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">
+          หากกรอก Token ไว้ด้านล่างแล้ว สามารถกดปุ่มนี้เพื่อส่งข้อมูลขึ้น GitHub อัตโนมัติ:
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeSavePublishModal(); commitToGitHub();">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i> อัปเดตด้วย GitHub API ทันที
+        </button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 12px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="saveToLocalStorageAndNotify(); closeSavePublishModal();">
+          <i class="fa-solid fa-laptop"></i> บันทึกพรีวิวเฉพาะเครื่องนี้
+        </button>
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeSavePublishModal()">ปิด</button>
       </div>
     </div>
   </div>
@@ -875,7 +927,21 @@
       populateYearSelect();
       renderMonthTable();
       closeAddYearModal();
-      showAlert(`เพิ่มปี ${newYear} สำเร็จ`, 'success');
+      showAlert(`เพิ่มปี ${newYear} สำเร็จ! อย่าลืมกด "บันทึก / เผยแพร่ขึ้นเว็บ" ด้านบนนะครับ`, 'success');
+    }
+
+    // Modal Save & Publish
+    function openSavePublishModal() {
+      syncInputsToData();
+      safeStorageSet('mwa_report_data_override', JSON.stringify(currentData, null, 2));
+      document.getElementById('savePublishModal').classList.add('open');
+    }
+    function closeSavePublishModal() {
+      document.getElementById('savePublishModal').classList.remove('open');
+    }
+    function downloadAndPromptUpload() {
+      downloadJSONFile();
+      showAlert('ดาวน์โหลด data.json แล้ว! กดปุ่ม "2. เปิดหน้าลากไฟล์วางบน GitHub" เพื่ออัปโหลดทับได้เลยครับ', 'success');
     }
 
     // Delete Current Year
