@@ -529,6 +529,7 @@
 
     let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
     let currentSelectedYear = '';
+    let hasUserSelectedYear = false;
 
     // ฟังก์ชันอ่าน LocalStorage แบบปลอดภัย (ป้องกัน error SecurityError เมื่ออยู่ใน iframe ข้ามโดเมน)
     function safeGetLocalStorage(key) {
@@ -542,18 +543,26 @@
       return null;
     }
 
+    // ฟังก์ชันหาปีล่าสุดที่มีค่าสูงสุด (เช่น 2571 > 2570 > 2569)
+    function getLatestYear() {
+      if (!appData || !appData.years || appData.years.length === 0) return '';
+      const sorted = [...appData.years].sort((a, b) => (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0));
+      return sorted[0].year;
+    }
+
     // เริ่มต้นระบบ
     async function initApp() {
-      // 1. ตรวจสอบปีจาก URL Query Parameter เช่น ?year=2567
+      // 1. ตรวจสอบปีจาก URL Query Parameter เช่น ?year=2567 (ถ้ามี จะถือว่าระบุปีเจาะจง)
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const paramYear = urlParams.get('year');
         if (paramYear) {
           currentSelectedYear = paramYear;
+          hasUserSelectedYear = true;
         }
       } catch (e) {}
 
-      // 2. แสดงผลทันทีด้วยข้อมูลเริ่มต้น
+      // 2. แสดงผลทันทีด้วยข้อมูลเริ่มต้น (เลือกปีล่าสุดเสมอ)
       renderData();
 
       // 3. ตรวจสอบข้อมูลจาก LocalStorage (ถ้าเคยแก้ไขใน admin เครื่องนี้)
@@ -590,9 +599,15 @@
     function renderData() {
       if (!appData || !appData.years || appData.years.length === 0) return;
 
+      // จัดเรียงปีจากใหม่สุด -> เก่าสุดเสมอ
+      appData.years.sort((a, b) => (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0));
+
       const availableYears = appData.years.map(y => y.year);
-      if (!currentSelectedYear || !availableYears.includes(currentSelectedYear)) {
-        currentSelectedYear = appData.defaultYear || appData.years[0].year;
+      const latestYear = getLatestYear();
+
+      // ถ้าผู้ใช้ไม่ได้กดเลือกปีเอง ให้แสดง "ปีล่าสุด" เสมอทุกครั้งที่เข้ามาในเว็บ
+      if (!hasUserSelectedYear || !availableYears.includes(currentSelectedYear)) {
+        currentSelectedYear = latestYear;
       }
 
       renderYearControls();
@@ -631,6 +646,7 @@
 
     // ฟังก์ชันเปลี่ยนปี
     function selectYear(year) {
+      hasUserSelectedYear = true;
       currentSelectedYear = year;
       const yearSelect = document.getElementById('yearSelect');
       if (yearSelect) yearSelect.value = year;
