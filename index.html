@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบรายงานประจำเดือน - การประปานครหลวง (MWA)</title>
+  <!-- Google Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #0066b2;
+      --primary-dark: #004c85;
+      --primary-light: #e8f4fc;
+      --accent-color: #00a0e9;
+      --accent-cyan: #00bcd4;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --bg-body: #f8fafc;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 12px rgba(0, 102, 178, 0.08);
+      --shadow-hover: 0 8px 24px rgba(0, 102, 178, 0.16);
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Prompt', 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    /* Outer Wrapper */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* Top Control Bar (Year Filter & Stats) */
+    .filter-header {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 18px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .filter-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 20px;
+      right: 20px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-cyan));
+      border-radius: 3px 3px 0 0;
+    }
+
+    .filter-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-label i {
+      color: var(--primary-color);
+    }
+
+    /* Custom Select */
+    .select-wrapper {
+      position: relative;
+      min-width: 160px;
+    }
+
+    .year-select {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 100%;
+      background-color: var(--primary-light);
+      border: 1.5px solid #bce1f8;
+      border-radius: var(--radius-md);
+      padding: 9px 36px 9px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .year-select:hover {
+      border-color: var(--primary-color);
+      background-color: #dcedfb;
+    }
+
+    .year-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 102, 178, 0.15);
+    }
+
+    .select-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--primary-color);
+      font-size: 0.85rem;
+    }
+
+    /* Quick Year Tabs */
+    .year-tabs {
+      display: flex;
+      gap: 6px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: var(--radius-md);
+    }
+
+    .year-tab-btn {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'Prompt', sans-serif;
+    }
+
+    .year-tab-btn:hover {
+      color: var(--primary-color);
+    }
+
+    .year-tab-btn.active {
+      background: #ffffff;
+      color: var(--primary-color);
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    .filter-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .stat-badge i {
+      font-size: 0.75rem;
+    }
+
+    /* Months Grid */
+    .months-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 992px) {
+      .months-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .months-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .filter-header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .filter-left, .filter-right {
+        justify-content: space-between;
+      }
+      .year-tabs {
+        display: none; /* Hide quick tabs on small mobile to keep it neat */
+      }
+    }
+
+    @media (max-width: 480px) {
+      .months-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Month Card */
+    .month-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      min-height: 145px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .month-card.has-link {
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .month-card.has-link:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: #93c5fd;
+    }
+
+    .month-card.disabled {
+      opacity: 0.65;
+      background: #fafbfc;
+      cursor: not-allowed;
+    }
+
+    /* Card Accent Bar */
+    .card-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: #cbd5e1;
+      transition: var(--transition);
+    }
+
+    .month-card.has-link .card-accent {
+      background: linear-gradient(180deg, var(--primary-color), var(--accent-cyan));
+    }
+
+    .month-card.has-link:hover .card-accent {
+      width: 7px;
+    }
+
+    /* Card Top Header */
+    .card-header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .month-number {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      background: var(--primary-light);
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .status-tag {
+      font-size: 0.72rem;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .status-tag.active {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-tag.pending {
+      background: #f1f5f9;
+      color: #64748b;
+    }
+
+    /* Month Title */
+    .month-title {
+      font-size: 1.22rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 2px;
+      transition: var(--transition);
+    }
+
+    .month-card.has-link:hover .month-title {
+      color: var(--primary-color);
+    }
+
+    .month-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'Sarabun', sans-serif;
+    }
+
+    /* Card Action Footer */
+    .card-footer {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .action-text {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .month-card.disabled .action-text {
+      color: #94a3b8;
+    }
+
+    .action-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--primary-light);
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+
+    .month-card.has-link:hover .action-icon {
+      background: var(--primary-color);
+      color: #ffffff;
+      transform: translateX(3px);
+    }
+
+    .month-card.disabled .action-icon {
+      background: #f1f5f9;
+      color: #cbd5e1;
+    }
+
+    /* Empty / Loading State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      border: 1px dashed var(--border-color);
+      grid-column: 1 / -1;
+    }
+
+    .empty-icon {
+      font-size: 2.5rem;
+      color: #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    .empty-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Admin quick link button (discreet) */
+    .admin-float-link {
+      position: fixed;
+      bottom: 12px;
+      right: 12px;
+      opacity: 0.35;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      color: #64748b;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: var(--transition);
+      z-index: 99;
+    }
+
+    .admin-float-link:hover {
+      opacity: 1;
+      background: var(--primary-color);
+      color: #ffffff;
+      border-color: var(--primary-color);
+      box-shadow: var(--shadow-md);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Filter Bar Header -->
+    <header class="filter-header">
+      <div class="filter-left">
+        <label for="yearSelect" class="filter-label">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>เลือกปีรายงาน:</span>
+        </label>
+
+        <!-- Dropdown Year -->
+        <div class="select-wrapper">
+          <select id="yearSelect" class="year-select" aria-label="เลือกปีรายงาน">
+            <!-- Dynamic Options -->
+          </select>
+          <i class="fa-solid fa-chevron-down select-icon"></i>
+        </div>
+
+        <!-- Quick Year Tabs -->
+        <div class="year-tabs" id="yearTabs">
+          <!-- Dynamic Tabs -->
+        </div>
+      </div>
+
+      <div class="filter-right">
+        <div class="stat-badge" id="reportStatBadge">
+          <i class="fa-solid fa-circle-check"></i>
+          <span id="statText">กำลังโหลด...</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Months Grid List -->
+    <main class="months-grid" id="monthsGrid">
+      <!-- Dynamic Month Cards -->
+    </main>
+  </div>
+
+  <!-- Quick discreet link to admin page -->
+  <a href="admin.html" class="admin-float-link" title="เข้าสู่ระบบจัดการข้อมูล (หลังบ้าน)">
+    <i class="fa-solid fa-gear"></i> จัดการลิงก์
+  </a>
+
+  <!-- Embedded fallback dataset to ensure immediate work out-of-the-box -->
+  <script id="fallback-data" type="application/json">
+  {
+    "defaultYear": "2568",
+    "years": [
+      {
+        "year": "2568",
+        "months": [
+          { "id": 1, "name": "มกราคม", "shortName": "ม.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2568-01-31" },
+          { "id": 2, "name": "กุมภาพันธ์", "shortName": "ก.พ.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2568-02-28" },
+          { "id": 3, "name": "มีนาคม", "shortName": "มี.ค.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 4, "name": "เมษายน", "shortName": "เม.ย.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 5, "name": "พฤษภาคม", "shortName": "พ.ค.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 6, "name": "มิถุนายน", "shortName": "มิ.ย.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 7, "name": "กรกฎาคม", "shortName": "ก.ค.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 8, "name": "สิงหาคม", "shortName": "ส.ค.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 9, "name": "กันยายน", "shortName": "ก.ย.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 10, "name": "ตุลาคม", "shortName": "ต.ค.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 11, "name": "พฤศจิกายน", "shortName": "พ.ย.", "link": "", "active": false, "updatedAt": "" },
+          { "id": 12, "name": "ธันวาคม", "shortName": "ธ.ค.", "link": "", "active": false, "updatedAt": "" }
+        ]
+      },
+      {
+        "year": "2567",
+        "months": [
+          { "id": 1, "name": "มกราคม", "shortName": "ม.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-01-31" },
+          { "id": 2, "name": "กุมภาพันธ์", "shortName": "ก.พ.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-02-29" },
+          { "id": 3, "name": "มีนาคม", "shortName": "มี.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-03-31" },
+          { "id": 4, "name": "เมษายน", "shortName": "เม.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-04-30" },
+          { "id": 5, "name": "พฤษภาคม", "shortName": "พ.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-05-31" },
+          { "id": 6, "name": "มิถุนายน", "shortName": "มิ.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-06-30" },
+          { "id": 7, "name": "กรกฎาคม", "shortName": "ก.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-07-31" },
+          { "id": 8, "name": "สิงหาคม", "shortName": "ส.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-08-31" },
+          { "id": 9, "name": "กันยายน", "shortName": "ก.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-09-30" },
+          { "id": 10, "name": "ตุลาคม", "shortName": "ต.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-10-31" },
+          { "id": 11, "name": "พฤศจิกายน", "shortName": "พ.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-11-30" },
+          { "id": 12, "name": "ธันวาคม", "shortName": "ธ.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-12-31" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <script>
+    let appData = null;
+    let currentSelectedYear = '';
+
+    // Initialize Application
+    async function initApp() {
+      // 1. Try to load data from localStorage (if edited recently in admin on same device) or fetch data.json
+      let localOverride = localStorage.getItem('mwa_report_data_override');
+      if (localOverride) {
+        try {
+          appData = JSON.parse(localOverride);
+        } catch(e) {
+          console.warn('Failed parsing local override', e);
+        }
+      }
+
+      if (!appData) {
+        try {
+          // Fetch data.json with cache buster
+          const res = await fetch('./data.json?v=' + Date.now());
+          if (res.ok) {
+            appData = await res.json();
+          } else {
+            throw new Error('HTTP ' + res.status);
+          }
+        } catch (err) {
+          console.warn('Could not fetch data.json, falling back to embedded dataset', err);
+          const fallbackEl = document.getElementById('fallback-data');
+          if (fallbackEl) {
+            appData = JSON.parse(fallbackEl.textContent);
+          }
+        }
+      }
+
+      if (!appData || !appData.years || appData.years.length === 0) {
+        document.getElementById('monthsGrid').innerHTML = `
+          <div class="empty-state">
+            <i class="fa-regular fa-folder-open empty-icon"></i>
+            <div class="empty-text">ไม่พบข้อมูลปีรายงาน กรุณาตรวจสอบการตั้งค่า</div>
+          </div>
+        `;
+        return;
+      }
+
+      // Check URL search param for ?year=2568
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramYear = urlParams.get('year');
+
+      const availableYears = appData.years.map(y => y.year);
+      if (paramYear && availableYears.includes(paramYear)) {
+        currentSelectedYear = paramYear;
+      } else {
+        currentSelectedYear = appData.defaultYear || appData.years[0].year;
+      }
+
+      renderYearControls();
+      renderMonthsGrid();
+      notifyParentHeight();
+    }
+
+    // Render Year Select and Tabs
+    function renderYearControls() {
+      const yearSelect = document.getElementById('yearSelect');
+      const yearTabs = document.getElementById('yearTabs');
+
+      yearSelect.innerHTML = '';
+      yearTabs.innerHTML = '';
+
+      appData.years.forEach(item => {
+        // Option
+        const opt = document.createElement('option');
+        opt.value = item.year;
+        opt.textContent = `ปี ${item.year}`;
+        if (item.year === currentSelectedYear) opt.selected = true;
+        yearSelect.appendChild(opt);
+
+        // Tab Button (show up to 4 most recent years as pills)
+        const tabBtn = document.createElement('button');
+        tabBtn.type = 'button';
+        tabBtn.className = `year-tab-btn ${item.year === currentSelectedYear ? 'active' : ''}`;
+        tabBtn.textContent = `ปี ${item.year}`;
+        tabBtn.onclick = () => selectYear(item.year);
+        yearTabs.appendChild(tabBtn);
+      });
+
+      yearSelect.onchange = (e) => selectYear(e.target.value);
+    }
+
+    // Select Year Action
+    function selectYear(year) {
+      currentSelectedYear = year;
+      document.getElementById('yearSelect').value = year;
+
+      // Update tabs active state
+      const tabs = document.querySelectorAll('.year-tab-btn');
+      tabs.forEach(t => {
+        t.classList.toggle('active', t.textContent.includes(year));
+      });
+
+      renderMonthsGrid();
+      notifyParentHeight();
+    }
+
+    // Render 12 Months
+    function renderMonthsGrid() {
+      const grid = document.getElementById('monthsGrid');
+      const yearObj = appData.years.find(y => y.year === currentSelectedYear);
+
+      if (!yearObj || !yearObj.months || yearObj.months.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <i class="fa-solid fa-file-circle-question empty-icon"></i>
+            <div class="empty-text">ยังไม่มีข้อมูลรายงานของปี ${currentSelectedYear}</div>
+          </div>
+        `;
+        document.getElementById('statText').textContent = '0 รายการ';
+        return;
+      }
+
+      let activeCount = 0;
+      grid.innerHTML = '';
+
+      yearObj.months.forEach((m, idx) => {
+        const hasValidLink = m.active && m.link && m.link.trim() !== '';
+        if (hasValidLink) activeCount++;
+
+        const card = document.createElement(hasValidLink ? 'a' : 'div');
+        card.className = `month-card ${hasValidLink ? 'has-link' : 'disabled'}`;
+        
+        if (hasValidLink) {
+          card.href = m.link;
+          card.target = '_blank';
+          card.rel = 'noopener noreferrer';
+          card.title = `คลิกเพื่อเปิดรายงานประจำเดือน${m.name} ปี ${currentSelectedYear}`;
+        }
+
+        const formattedId = String(m.id || (idx + 1)).padStart(2, '0');
+
+        card.innerHTML = `
+          <div class="card-accent"></div>
+          <div class="card-header-inner">
+            <span class="month-number">เดือน ${formattedId}</span>
+            <span class="status-tag ${hasValidLink ? 'active' : 'pending'}">
+              <i class="fa-solid ${hasValidLink ? 'fa-check' : 'fa-clock'}"></i>
+              ${hasValidLink ? 'พร้อมเปิดอ่าน' : 'รอการเผยแพร่'}
+            </span>
+          </div>
+
+          <div>
+            <h2 class="month-title">${m.name}</h2>
+            <div class="month-sub">ประจำปี พ.ศ. ${currentSelectedYear}</div>
+          </div>
+
+          <div class="card-footer">
+            <span class="action-text">
+              <i class="${hasValidLink ? 'fa-regular fa-file-pdf' : 'fa-regular fa-hourglass-half'}"></i>
+              ${hasValidLink ? 'เปิดอ่านรายงาน' : 'ยังไม่มีเอกสาร'}
+            </span>
+            <div class="action-icon">
+              <i class="fa-solid ${hasValidLink ? 'fa-arrow-up-right-from-square' : 'fa-lock'}"></i>
+            </div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+
+      // Update badge stat
+      document.getElementById('statText').textContent = `เผยแพร่แล้ว ${activeCount}/12 เดือน`;
+    }
+
+    // Auto notify parent iframe of height for seamless embed
+    function notifyParentHeight() {
+      setTimeout(() => {
+        const height = document.body.scrollHeight;
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'mwa-iframe-resize', height: height }, '*');
+        }
+      }, 100);
+    }
+
+    window.addEventListener('resize', notifyParentHeight);
+    window.addEventListener('load', initApp);
+  </script>
+</body>
+</html>
+

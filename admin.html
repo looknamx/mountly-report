@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบจัดการรายงานประจำเดือน (Admin Back-office) - MWA</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0066b2;
+      --primary-dark: #004c85;
+      --primary-light: #f0f7fc;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+      --dark: #0f172a;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Prompt', 'Sarabun', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* Top Navigation */
+    .navbar {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+
+    .nav-brand-badge {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+      font-family: 'Prompt', sans-serif;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #ffffff;
+    }
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    .btn-outline {
+      background: #ffffff;
+      border-color: var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .btn-danger {
+      background: #fef2f2;
+      color: var(--danger);
+      border-color: #fecaca;
+    }
+    .btn-danger:hover {
+      background: #fee2e2;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 0.8rem;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    /* Status Alert Banner */
+    .alert-banner {
+      display: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.92rem;
+      align-items: center;
+      justify-content: space-between;
+      animation: fadeIn 0.3s ease;
+    }
+    .alert-banner.success {
+      display: flex;
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+    .alert-banner.error {
+      display: flex;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    /* Year Selector Header Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+
+    .year-management-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .year-select-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .form-select {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-dark);
+      font-family: 'Prompt', sans-serif;
+      outline: none;
+      cursor: pointer;
+    }
+    .form-select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Month list table */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .month-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 10px;
+    }
+
+    .month-table th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1.5px solid var(--border);
+    }
+
+    .month-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+      font-size: 0.95rem;
+    }
+
+    .month-table tr:hover {
+      background: #f8fbff;
+    }
+
+    .month-badge {
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      border-radius: 8px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+
+    .month-name-cell {
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .link-input-wrapper {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      outline: none;
+      font-family: 'Prompt', sans-serif;
+      transition: border-color 0.2s;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(0, 102, 178, 0.12);
+    }
+
+    /* Switch toggle */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--success);
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Integration Panel (GitHub & Download) */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 860px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .help-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .code-box {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-card {
+      background: #ffffff;
+      border-radius: var(--radius);
+      padding: 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand" target="_blank" title="คลิกเพื่อดูหน้าแสดงผล">
+      <i class="fa-solid fa-water"></i>
+      <span>ระบบจัดการรายงานประจำเดือน</span>
+      <span class="nav-brand-badge">Admin</span>
+    </a>
+    <div class="nav-actions">
+      <a href="index.html" target="_blank" class="btn btn-outline btn-sm">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> ดูหน้าแสดงผลจริง
+      </a>
+      <button type="button" class="btn btn-success" onclick="saveToLocalStorageAndNotify()">
+        <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูล
+      </button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <!-- Notice / Alert -->
+    <div id="alertBanner" class="alert-banner">
+      <span id="alertMessage"><i class="fa-solid fa-check-circle"></i> บันทึกสำเร็จ</span>
+      <button type="button" style="background:none;border:none;cursor:pointer;color:inherit;" onclick="hideAlert()">✕</button>
+    </div>
+
+    <!-- Year Selector & Management Card -->
+    <div class="card">
+      <div class="year-management-bar">
+        <div class="year-select-group">
+          <label for="adminYearSelect" style="font-weight: 600; font-size: 1.05rem;">
+            <i class="fa-regular fa-calendar" style="color: var(--primary);"></i> เลือกปีที่ต้องการแก้ไข:
+          </label>
+          <select id="adminYearSelect" class="form-select" onchange="switchAdminYear(this.value)">
+            <!-- Dynamic Years -->
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-outline btn-sm" onclick="openAddYearModal()">
+            <i class="fa-solid fa-plus"></i> เพิ่มปีรายงานใหม่
+          </button>
+          <button type="button" class="btn btn-danger btn-sm" onclick="deleteCurrentYear()">
+            <i class="fa-solid fa-trash-can"></i> ลบปีนี้
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Links Table Card -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+        <div>
+          <h3 style="font-size: 1.15rem; font-weight: 600;">
+            <i class="fa-solid fa-list-check" style="color: var(--primary);"></i> รายการ 12 เดือน ประจำปี <span id="displayYearText">2568</span>
+          </h3>
+          <p class="help-text">ใส่ลิงก์ไฟล์ PDF, Google Drive หรือ URL หน้าเว็บที่ต้องการให้เปิดเมื่อผู้ใช้คลิกเดือนนั้นๆ</p>
+        </div>
+        <div>
+          <button type="button" class="btn btn-outline btn-sm" onclick="enableAllMonths(true)">
+            <i class="fa-solid fa-check-double"></i> เปิดทั้งหมด
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="enableAllMonths(false)">
+            <i class="fa-solid fa-ban"></i> ปิดทั้งหมด
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="month-table">
+          <thead>
+            <tr>
+              <th style="width: 60px; text-align: center;">ลำดับ</th>
+              <th style="width: 140px;">เดือน</th>
+              <th>ลิงก์รายงาน (URL ลิงก์ PDF / หน้าเว็บ)</th>
+              <th style="width: 100px; text-align: center;">สถานะ</th>
+              <th style="width: 80px; text-align: center;">ทดสอบ</th>
+            </tr>
+          </thead>
+          <tbody id="monthTableBody">
+            <!-- Dynamic Month Rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Save & GitHub Integration Methods -->
+    <div class="grid-2">
+      <!-- Option A: GitHub Auto-Commit via API -->
+      <div class="card">
+        <h4 class="section-title">
+          <i class="fa-brands fa-github" style="color: #24292e;"></i> อัปเดตขึ้น GitHub อัตโนมัติ (GitHub API)
+        </h4>
+        <p class="help-text">
+          หากตั้งค่า Personal Access Token ไว้ คุณสามารถกดบันทึกและให้ระบบ commit ไฟล์ <code>data.json</code> เข้า GitHub Repository ได้ทันที โดยไม่ต้องพิมพ์คำสั่ง Git
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">GitHub Personal Access Token (PAT):</label>
+            <input type="password" id="ghToken" class="form-control" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Repository (เจ้าของ/ชื่อคลัง):</label>
+              <input type="text" id="ghRepo" class="form-control" value="looknamx/mountly-report" placeholder="looknamx/mountly-report" />
+            </div>
+            <div>
+              <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Branch:</label>
+              <input type="text" id="ghBranch" class="form-control" value="main" />
+            </div>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Path ไฟล์ข้อมูล:</label>
+            <input type="text" id="ghPath" class="form-control" value="data.json" readonly style="background:#f1f5f9;" />
+          </div>
+          <button type="button" class="btn btn-primary" style="margin-top: 6px;" onclick="commitToGitHub()">
+            <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกและ Commit ขึ้น GitHub ทันที
+          </button>
+        </div>
+      </div>
+
+      <!-- Option B: Export / Download data.json -->
+      <div class="card">
+        <h4 class="section-title">
+          <i class="fa-solid fa-file-code" style="color: var(--primary);"></i> ดาวน์โหลดไฟล์ data.json เพื่ออัปโหลดเอง
+        </h4>
+        <p class="help-text">
+          หากไม่ต้องการเชื่อมต่อ Token คุณสามารถกดดาวน์โหลดไฟล์ <code>data.json</code> แล้วนำไปวางทับใน GitHub Repository หรือเซิร์ฟเวอร์ได้โดยตรง
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+          <button type="button" class="btn btn-outline" onclick="downloadJSONFile()">
+            <i class="fa-solid fa-download" style="color: var(--primary);"></i> ดาวน์โหลด data.json (นำไปอัปโหลดบน GitHub)
+          </button>
+          <button type="button" class="btn btn-outline" onclick="copyJSONToClipboard()">
+            <i class="fa-regular fa-copy"></i> คัดลอกโค้ด JSON ไปใช้งาน
+          </button>
+
+          <div style="margin-top: 8px;">
+            <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">นำเข้าไฟล์ data.json เดิมเพื่อแก้ไขต่อ:</label>
+            <input type="file" id="importFileInput" accept=".json" class="form-control" style="margin-top: 4px;" onchange="importJSONFile(event)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Code Iframe Guide Card -->
+    <div class="card" style="margin-top: 24px;">
+      <h4 class="section-title">
+        <i class="fa-solid fa-code" style="color: var(--primary);"></i> โค้ดสำหรับนำไปฝัง iframe บนเว็บไซต์หลักของการประปานครหลวง
+      </h4>
+      <p class="help-text">คัดลอกโค้ดด้านล่างนี้ไปวางในหน้าเว็บ CMS หรือ HTML ในตำแหน่งที่ต้องการแสดงรายงานประจำเดือน:</p>
+      
+      <div class="code-box" id="iframeSnippet">
+&lt;iframe 
+  src="https://looknamx.github.io/mountly-report/index.html" 
+  width="100%" 
+  height="750" 
+  style="border: none; overflow: hidden; max-width: 1200px; display: block; margin: 0 auto;" 
+  title="รายงานประจำเดือน การประปานครหลวง"
+  loading="lazy"&gt;
+&lt;/iframe&gt;
+      </div>
+      <button type="button" class="btn btn-outline btn-sm" style="margin-top: 10px;" onclick="copyIframeCode()">
+        <i class="fa-regular fa-copy"></i> คัดลอกแท็ก iframe
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Add Year -->
+  <div id="addYearModal" class="modal-backdrop">
+    <div class="modal-card">
+      <h3 class="modal-title">
+        <i class="fa-solid fa-calendar-plus" style="color: var(--primary);"></i> เพิ่มปีรายงานใหม่
+      </h3>
+      <div style="margin-bottom: 16px;">
+        <label for="newYearInput" style="display: block; font-size: 0.88rem; font-weight: 600; margin-bottom: 6px;">
+          ระบุปี พ.ศ. (เช่น 2568, 2569)
+        </label>
+        <input type="text" id="newYearInput" class="form-control" placeholder="2569" maxlength="4" />
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <button type="button" class="btn btn-outline" onclick="closeAddYearModal()">ยกเลิก</button>
+        <button type="button" class="btn btn-primary" onclick="confirmAddYear()">ยืนยันเพิ่มปี</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_MONTH_NAMES = [
+      { id: 1, name: "มกราคม", shortName: "ม.ค." },
+      { id: 2, name: "กุมภาพันธ์", shortName: "ก.พ." },
+      { id: 3, name: "มีนาคม", shortName: "มี.ค." },
+      { id: 4, name: "เมษายน", shortName: "เม.ย." },
+      { id: 5, name: "พฤษภาคม", shortName: "พ.ค." },
+      { id: 6, name: "มิถุนายน", shortName: "มิ.ย." },
+      { id: 7, name: "กรกฎาคม", shortName: "ก.ค." },
+      { id: 8, name: "สิงหาคม", shortName: "ส.ค." },
+      { id: 9, name: "กันยายน", shortName: "ก.ย." },
+      { id: 10, name: "ตุลาคม", shortName: "ต.ค." },
+      { id: 11, name: "พฤศจิกายน", shortName: "พ.ย." },
+      { id: 12, name: "ธันวาคม", shortName: "ธ.ค." }
+    ];
+
+    let currentData = {
+      defaultYear: "2568",
+      years: []
+    };
+
+    let activeYear = "2568";
+
+    // Initialize Admin
+    async function initAdmin() {
+      // 1. Load saved GitHub credentials from localStorage if any
+      const savedToken = localStorage.getItem('mwa_gh_token');
+      const savedRepo = localStorage.getItem('mwa_gh_repo');
+      const savedBranch = localStorage.getItem('mwa_gh_branch');
+      if (savedToken) document.getElementById('ghToken').value = savedToken;
+      if (savedRepo) document.getElementById('ghRepo').value = savedRepo;
+      if (savedBranch) document.getElementById('ghBranch').value = savedBranch;
+
+      // 2. Load data from localStorage override or fetch data.json
+      let loaded = false;
+      const localOverride = localStorage.getItem('mwa_report_data_override');
+      if (localOverride) {
+        try {
+          currentData = JSON.parse(localOverride);
+          loaded = true;
+        } catch (e) {
+          console.warn('Cannot parse override', e);
+        }
+      }
+
+      if (!loaded) {
+        try {
+          const res = await fetch('./data.json?v=' + Date.now());
+          if (res.ok) {
+            currentData = await res.json();
+            loaded = true;
+          }
+        } catch (err) {
+          console.warn('Could not fetch data.json', err);
+        }
+      }
+
+      // If still empty, create default template
+      if (!currentData.years || currentData.years.length === 0) {
+        currentData = {
+          defaultYear: "2568",
+          years: [
+            createYearTemplate("2568"),
+            createYearTemplate("2567")
+          ]
+        };
+      }
+
+      activeYear = currentData.defaultYear || currentData.years[0].year;
+      populateYearSelect();
+      renderMonthTable();
+    }
+
+    // Helper: Create 12 blank months for a given year
+    function createYearTemplate(yearStr) {
+      return {
+        year: yearStr,
+        months: DEFAULT_MONTH_NAMES.map(m => ({
+          id: m.id,
+          name: m.name,
+          shortName: m.shortName,
+          link: "",
+          active: false,
+          updatedAt: ""
+        }))
+      };
+    }
+
+    // Populate Year Select
+    function populateYearSelect() {
+      const select = document.getElementById('adminYearSelect');
+      select.innerHTML = '';
+      currentData.years.forEach(y => {
+        const opt = document.createElement('option');
+        opt.value = y.year;
+        opt.textContent = `ปี พ.ศ. ${y.year}`;
+        if (y.year === activeYear) opt.selected = true;
+        select.appendChild(opt);
+      });
+      document.getElementById('displayYearText').textContent = activeYear;
+    }
+
+    // Switch Year
+    function switchAdminYear(year) {
+      // Save current input before switching
+      syncInputsToData();
+      activeYear = year;
+      document.getElementById('displayYearText').textContent = activeYear;
+      renderMonthTable();
+    }
+
+    // Render Month Table
+    function renderMonthTable() {
+      const tbody = document.getElementById('monthTableBody');
+      tbody.innerHTML = '';
+
+      let yearObj = currentData.years.find(y => y.year === activeYear);
+      if (!yearObj) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:#94a3b8;">ไม่พบข้อมูลของปี ${activeYear}</td></tr>`;
+        return;
+      }
+
+      // Ensure all 12 months exist
+      if (!yearObj.months || yearObj.months.length < 12) {
+        yearObj.months = DEFAULT_MONTH_NAMES.map(dm => {
+          const existing = (yearObj.months || []).find(m => m.id === dm.id);
+          return existing || { id: dm.id, name: dm.name, shortName: dm.shortName, link: "", active: false, updatedAt: "" };
+        });
+      }
+
+      yearObj.months.forEach((m, idx) => {
+        const tr = document.createElement('tr');
+        const formattedId = String(m.id || (idx + 1)).padStart(2, '0');
+
+        tr.innerHTML = `
+          <td style="text-align: center;">
+            <span class="month-badge">${formattedId}</span>
+          </td>
+          <td class="month-name-cell">
+            ${m.name}
+          </td>
+          <td>
+            <div class="link-input-wrapper">
+              <input type="url" 
+                class="form-control month-link-input" 
+                data-id="${m.id}" 
+                placeholder="https://example.com/report-${m.id}.pdf หรือ Google Drive link"
+                value="${m.link || ''}" 
+                oninput="onLinkInputChanged(${m.id}, this.value)"
+              />
+            </div>
+          </td>
+          <td style="text-align: center;">
+            <label class="toggle-switch">
+              <input type="checkbox" 
+                class="month-toggle-input" 
+                data-id="${m.id}" 
+                ${m.active ? 'checked' : ''} 
+                onchange="onToggleChanged(${m.id}, this.checked)"
+              />
+              <span class="slider"></span>
+            </label>
+          </td>
+          <td style="text-align: center;">
+            <button type="button" class="btn btn-outline btn-sm" title="ทดสอบเปิดลิงก์" onclick="testLink(${m.id})">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Auto toggle on if link is entered and not yet active
+    function onLinkInputChanged(id, val) {
+      const yearObj = currentData.years.find(y => y.year === activeYear);
+      if (!yearObj) return;
+      const month = yearObj.months.find(m => m.id === id);
+      if (month) {
+        month.link = val.trim();
+        if (month.link && !month.active) {
+          month.active = true;
+          const checkbox = document.querySelector(`.month-toggle-input[data-id="${id}"]`);
+          if (checkbox) checkbox.checked = true;
+        }
+      }
+    }
+
+    function onToggleChanged(id, isChecked) {
+      const yearObj = currentData.years.find(y => y.year === activeYear);
+      if (!yearObj) return;
+      const month = yearObj.months.find(m => m.id === id);
+      if (month) {
+        month.active = isChecked;
+      }
+    }
+
+    function enableAllMonths(enable) {
+      const yearObj = currentData.years.find(y => y.year === activeYear);
+      if (!yearObj) return;
+      yearObj.months.forEach(m => m.active = enable);
+      renderMonthTable();
+    }
+
+    function testLink(id) {
+      syncInputsToData();
+      const yearObj = currentData.years.find(y => y.year === activeYear);
+      const month = yearObj?.months.find(m => m.id === id);
+      if (month && month.link && month.link.trim() !== '') {
+        window.open(month.link.trim(), '_blank');
+      } else {
+        alert('กรุณากรอกลิงก์รายงานก่อนกดทดสอบเปิด');
+      }
+    }
+
+    // Sync all inputs into currentData structure
+    function syncInputsToData() {
+      const yearObj = currentData.years.find(y => y.year === activeYear);
+      if (!yearObj) return;
+
+      const linkInputs = document.querySelectorAll('.month-link-input');
+      const toggleInputs = document.querySelectorAll('.month-toggle-input');
+
+      linkInputs.forEach(input => {
+        const id = parseInt(input.dataset.id, 10);
+        const month = yearObj.months.find(m => m.id === id);
+        if (month) month.link = input.value.trim();
+      });
+
+      toggleInputs.forEach(input => {
+        const id = parseInt(input.dataset.id, 10);
+        const month = yearObj.months.find(m => m.id === id);
+        if (month) month.active = input.checked;
+      });
+    }
+
+    // Save to LocalStorage
+    function saveToLocalStorageAndNotify() {
+      syncInputsToData();
+      localStorage.setItem('mwa_report_data_override', JSON.stringify(currentData, null, 2));
+      showAlert('บันทึกข้อมูลเรียบร้อยแล้ว! สามารถกด "ดูหน้าแสดงผลจริง" เพื่อตรวจสอบได้ทันที', 'success');
+    }
+
+    // Modal Add Year
+    function openAddYearModal() {
+      document.getElementById('newYearInput').value = '';
+      document.getElementById('addYearModal').classList.add('open');
+      document.getElementById('newYearInput').focus();
+    }
+    function closeAddYearModal() {
+      document.getElementById('addYearModal').classList.remove('open');
+    }
+    function confirmAddYear() {
+      const newYear = document.getElementById('newYearInput').value.trim();
+      if (!newYear || !/^\d{4}$/.test(newYear)) {
+        alert('กรุณาระบุปี พ.ศ. เป็นตัวเลข 4 หลัก (เช่น 2569)');
+        return;
+      }
+      if (currentData.years.some(y => y.year === newYear)) {
+        alert(`ปี ${newYear} มีอยู่ในระบบแล้ว`);
+        return;
+      }
+
+      syncInputsToData();
+      // Insert new year at the beginning (newest first)
+      currentData.years.unshift(createYearTemplate(newYear));
+      activeYear = newYear;
+      currentData.defaultYear = newYear;
+
+      populateYearSelect();
+      renderMonthTable();
+      closeAddYearModal();
+      showAlert(`เพิ่มปี ${newYear} สำเร็จ`, 'success');
+    }
+
+    // Delete Current Year
+    function deleteCurrentYear() {
+      if (currentData.years.length <= 1) {
+        alert('ไม่สามารถลบปีได้ เนื่องจากต้องมีอย่างน้อย 1 ปีในระบบ');
+        return;
+      }
+      if (confirm(`คุณต้องการลบข้อมูลรายงานประจำปี ${activeYear} หรือไม่?`)) {
+        currentData.years = currentData.years.filter(y => y.year !== activeYear);
+        activeYear = currentData.years[0].year;
+        currentData.defaultYear = activeYear;
+        populateYearSelect();
+        renderMonthTable();
+        showAlert('ลบปีที่เลือกเรียบร้อยแล้ว', 'success');
+      }
+    }
+
+    // Download JSON File
+    function downloadJSONFile() {
+      syncInputsToData();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(currentData, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "data.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showAlert('ดาวน์โหลดไฟล์ data.json สำเร็จ! ให้นำไฟล์นี้ไปแทนที่ไฟล์เดิมบน GitHub', 'success');
+    }
+
+    // Copy JSON to Clipboard
+    function copyJSONToClipboard() {
+      syncInputsToData();
+      const jsonStr = JSON.stringify(currentData, null, 2);
+      navigator.clipboard.writeText(jsonStr).then(() => {
+        showAlert('คัดลอกโค้ด JSON ลง Clipboard เรียบร้อยแล้ว', 'success');
+      }).catch(err => {
+        alert('คัดลอกไม่สำเร็จ: ' + err);
+      });
+    }
+
+    // Import JSON File
+    function importJSONFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (parsed && parsed.years && Array.isArray(parsed.years)) {
+            currentData = parsed;
+            activeYear = currentData.defaultYear || currentData.years[0].year;
+            populateYearSelect();
+            renderMonthTable();
+            saveToLocalStorageAndNotify();
+            showAlert('นำเข้าข้อมูลสำเร็จ!', 'success');
+          } else {
+            alert('โครงสร้างไฟล์ JSON ไม่ถูกต้อง');
+          }
+        } catch (err) {
+          alert('ไม่สามารถอ่านไฟล์ JSON ได้: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Copy iframe code
+    function copyIframeCode() {
+      const code = document.getElementById('iframeSnippet').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        showAlert('คัดลอกโค้ด iframe เรียบร้อยแล้ว', 'success');
+      });
+    }
+
+    // Commit to GitHub via REST API
+    async function commitToGitHub() {
+      syncInputsToData();
+
+      const token = document.getElementById('ghToken').value.trim();
+      const repo = document.getElementById('ghRepo').value.trim();
+      const branch = document.getElementById('ghBranch').value.trim() || 'main';
+      const path = 'data.json';
+
+      if (!token) {
+        alert('กรุณากรอก GitHub Personal Access Token (PAT)');
+        return;
+      }
+      if (!repo || !repo.includes('/')) {
+        alert('กรุณากรอก Repository ในรูปแบบ username/repo-name');
+        return;
+      }
+
+      // Save to localStorage for convenience
+      localStorage.setItem('mwa_gh_token', token);
+      localStorage.setItem('mwa_gh_repo', repo);
+      localStorage.setItem('mwa_gh_branch', branch);
+
+      showAlert('กำลังเชื่อมต่อไปยัง GitHub API...', 'success');
+
+      try {
+        // 1. Get current file SHA if exists
+        let currentSha = null;
+        const getUrl = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
+        const getRes = await fetch(getUrl, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/vnd.github.v3+json'
+          }
+        });
+
+        if (getRes.ok) {
+          const fileData = await getRes.json();
+          currentSha = fileData.sha;
+        }
+
+        // 2. Prepare payload
+        const updatedJsonStr = JSON.stringify(currentData, null, 2);
+        // Base64 encode supporting UTF-8 Thai characters
+        const base64Content = btoa(unescape(encodeURIComponent(updatedJsonStr)));
+
+        const payload = {
+          message: `Update monthly report data [skip ci] - ${new Date().toISOString()}`,
+          content: base64Content,
+          branch: branch
+        };
+        if (currentSha) {
+          payload.sha = currentSha;
+        }
+
+        // 3. Put content
+        const putUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
+        const putRes = await fetch(putUrl, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (putRes.ok) {
+          showAlert('✅ อัปเดตข้อมูลขึ้น GitHub สำเร็จแล้ว! หน้าเว็บจริงจะอัปเดตอัตโนมัติ', 'success');
+          localStorage.setItem('mwa_report_data_override', updatedJsonStr);
+        } else {
+          const errData = await putRes.json();
+          throw new Error(errData.message || 'บันทึกขึ้น GitHub ไม่สำเร็จ');
+        }
+      } catch (err) {
+        showAlert('❌ ข้อผิดพลาด: ' + err.message, 'error');
+        alert('เกิดข้อผิดพลาดในการบันทึกขึ้น GitHub:\n' + err.message + '\n\nคำแนะนำ: คุณสามารถใช้ปุ่ม "ดาวน์โหลด data.json" ไปอัปโหลดบนเว็บ GitHub โดยตรงได้เช่นกัน');
+      }
+    }
+
+    // UI Alert
+    function showAlert(msg, type = 'success') {
+      const banner = document.getElementById('alertBanner');
+      const text = document.getElementById('alertMessage');
+      banner.className = `alert-banner ${type}`;
+      text.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation'}"></i> ${msg}`;
+      banner.style.display = 'flex';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function hideAlert() {
+      document.getElementById('alertBanner').style.display = 'none';
+    }
+
+    window.addEventListener('load', initAdmin);
+  </script>
+</body>
+</html>
+

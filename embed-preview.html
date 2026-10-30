@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้าตัวอย่างการฝัง iframe - การประปานครหลวง</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Prompt', 'Sarabun', sans-serif;
+      background-color: #f1f5f9;
+      color: #334155;
+    }
+    /* Demo Top bar */
+    .top-mock-nav {
+      background: #004c85;
+      color: #ffffff;
+      padding: 10px 24px;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .top-mock-nav a {
+      color: #bfdbfe;
+      text-decoration: none;
+      margin-left: 15px;
+    }
+    /* MWA Banner from uploaded photo */
+    .banner-container {
+      width: 100%;
+      max-height: 280px;
+      overflow: hidden;
+      position: relative;
+      background: #0066b2;
+    }
+    .banner-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* Main Content Wrapper */
+    .main-wrapper {
+      max-width: 1200px;
+      margin: -30px auto 40px auto;
+      position: relative;
+      z-index: 10;
+      padding: 0 16px;
+    }
+    /* Iframe Box */
+    .iframe-box {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 51, 102, 0.08);
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      padding: 20px 10px;
+    }
+    iframe {
+      width: 100%;
+      height: 720px;
+      border: none;
+      display: block;
+      transition: height 0.2s ease;
+    }
+    /* Tips bar below */
+    .guide-bar {
+      margin-top: 20px;
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      border: 1px dashed #cbd5e1;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn-admin {
+      background: #0066b2;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    .btn-admin:hover {
+      background: #004c85;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mock Navbar -->
+  <div class="top-mock-nav">
+    <div><strong>การประปานครหลวง (MWA)</strong> | ตัวอย่างการจำลองหน้าเว็บไซต์จริง</div>
+    <div>
+      <a href="index.html" target="_blank">เปิดหน้าวิดเจ็ตตรงๆ (index.html)</a>
+      <a href="admin.html" target="_blank" style="color: #67e8f9; font-weight: 600;">⚙️ เข้าสู่ระบบจัดการหลังบ้าน (admin.html)</a>
+    </div>
+  </div>
+
+  <!-- Header Banner -->
+  <div class="banner-container">
+    <img src="banner.jpg" alt="แบนเนอร์รายงานประจำเดือน การประปานครหลวง" />
+  </div>
+
+  <!-- Main Website Section with Embedded iframe -->
+  <main class="main-wrapper">
+    <div class="iframe-box">
+      <!-- ฝัง iframe ตรงนี้ -->
+      <iframe 
+        id="mwaReportFrame" 
+        src="index.html" 
+        title="รายงานประจำเดือน การประปานครหลวง">
+      </iframe>
+    </div>
+
+    <!-- Quick action & info bar -->
+    <div class="guide-bar">
+      <div>
+        <strong>📌 หน้านี้คือหน้าจำลอง (Simulation):</strong> แสดงการฝัง <code>iframe</code> ใต้แบนเนอร์รายงานประจำเดือน
+      </div>
+      <div>
+        <a href="admin.html" class="btn-admin" target="_blank">⚙️ ไปที่หน้าจัดการหลังบ้าน (admin.html) เพื่อเปลี่ยนลิงก์</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // สคริปต์ปรับความสูง iframe อัตโนมัติตามเนื้อหาข้างใน ป้องกัน scrollbar ซ้อนกัน
+    window.addEventListener('message', function(e) {
+      if (e.data && e.data.type === 'mwa-iframe-resize') {
+        const frame = document.getElementById('mwaReportFrame');
+        if (frame && e.data.height) {
+          frame.style.height = (e.data.height + 20) + 'px';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
