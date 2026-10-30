@@ -609,19 +609,35 @@
 
     let activeYear = "2568";
 
+    function safeStorageGet(key) {
+      try {
+        return window.localStorage ? window.localStorage.getItem(key) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        if (window.localStorage) {
+          window.localStorage.setItem(key, value);
+        }
+      } catch (e) {}
+    }
+
     // Initialize Admin
     async function initAdmin() {
       // 1. Load saved GitHub credentials from localStorage if any
-      const savedToken = localStorage.getItem('mwa_gh_token');
-      const savedRepo = localStorage.getItem('mwa_gh_repo');
-      const savedBranch = localStorage.getItem('mwa_gh_branch');
+      const savedToken = safeStorageGet('mwa_gh_token');
+      const savedRepo = safeStorageGet('mwa_gh_repo');
+      const savedBranch = safeStorageGet('mwa_gh_branch');
       if (savedToken) document.getElementById('ghToken').value = savedToken;
       if (savedRepo) document.getElementById('ghRepo').value = savedRepo;
       if (savedBranch) document.getElementById('ghBranch').value = savedBranch;
 
       // 2. Load data from localStorage override or fetch data.json
       let loaded = false;
-      const localOverride = localStorage.getItem('mwa_report_data_override');
+      const localOverride = safeStorageGet('mwa_report_data_override');
       if (localOverride) {
         try {
           currentData = JSON.parse(localOverride);
@@ -826,7 +842,7 @@
     // Save to LocalStorage
     function saveToLocalStorageAndNotify() {
       syncInputsToData();
-      localStorage.setItem('mwa_report_data_override', JSON.stringify(currentData, null, 2));
+      safeStorageSet('mwa_report_data_override', JSON.stringify(currentData, null, 2));
       showAlert('บันทึกข้อมูลเรียบร้อยแล้ว! สามารถกด "ดูหน้าแสดงผลจริง" เพื่อตรวจสอบได้ทันที', 'success');
     }
 
@@ -954,9 +970,9 @@
       }
 
       // Save to localStorage for convenience
-      localStorage.setItem('mwa_gh_token', token);
-      localStorage.setItem('mwa_gh_repo', repo);
-      localStorage.setItem('mwa_gh_branch', branch);
+      safeStorageSet('mwa_gh_token', token);
+      safeStorageSet('mwa_gh_repo', repo);
+      safeStorageSet('mwa_gh_branch', branch);
 
       showAlert('กำลังเชื่อมต่อไปยัง GitHub API...', 'success');
 
@@ -1004,7 +1020,7 @@
 
         if (putRes.ok) {
           showAlert('✅ อัปเดตข้อมูลขึ้น GitHub สำเร็จแล้ว! หน้าเว็บจริงจะอัปเดตอัตโนมัติ', 'success');
-          localStorage.setItem('mwa_report_data_override', updatedJsonStr);
+          safeStorageSet('mwa_report_data_override', updatedJsonStr);
         } else {
           const errData = await putRes.json();
           throw new Error(errData.message || 'บันทึกขึ้น GitHub ไม่สำเร็จ');

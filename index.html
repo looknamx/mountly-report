@@ -484,101 +484,109 @@
     <i class="fa-solid fa-gear"></i> จัดการลิงก์
   </a>
 
-  <!-- Embedded fallback dataset to ensure immediate work out-of-the-box -->
-  <script id="fallback-data" type="application/json">
-  {
-    "defaultYear": "2568",
-    "years": [
-      {
-        "year": "2568",
-        "months": [
-          { "id": 1, "name": "มกราคม", "shortName": "ม.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2568-01-31" },
-          { "id": 2, "name": "กุมภาพันธ์", "shortName": "ก.พ.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2568-02-28" },
-          { "id": 3, "name": "มีนาคม", "shortName": "มี.ค.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 4, "name": "เมษายน", "shortName": "เม.ย.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 5, "name": "พฤษภาคม", "shortName": "พ.ค.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 6, "name": "มิถุนายน", "shortName": "มิ.ย.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 7, "name": "กรกฎาคม", "shortName": "ก.ค.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 8, "name": "สิงหาคม", "shortName": "ส.ค.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 9, "name": "กันยายน", "shortName": "ก.ย.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 10, "name": "ตุลาคม", "shortName": "ต.ค.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 11, "name": "พฤศจิกายน", "shortName": "พ.ย.", "link": "", "active": false, "updatedAt": "" },
-          { "id": 12, "name": "ธันวาคม", "shortName": "ธ.ค.", "link": "", "active": false, "updatedAt": "" }
-        ]
-      },
-      {
-        "year": "2567",
-        "months": [
-          { "id": 1, "name": "มกราคม", "shortName": "ม.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-01-31" },
-          { "id": 2, "name": "กุมภาพันธ์", "shortName": "ก.พ.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-02-29" },
-          { "id": 3, "name": "มีนาคม", "shortName": "มี.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-03-31" },
-          { "id": 4, "name": "เมษายน", "shortName": "เม.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-04-30" },
-          { "id": 5, "name": "พฤษภาคม", "shortName": "พ.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-05-31" },
-          { "id": 6, "name": "มิถุนายน", "shortName": "มิ.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-06-30" },
-          { "id": 7, "name": "กรกฎาคม", "shortName": "ก.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-07-31" },
-          { "id": 8, "name": "สิงหาคม", "shortName": "ส.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-08-31" },
-          { "id": 9, "name": "กันยายน", "shortName": "ก.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-09-30" },
-          { "id": 10, "name": "ตุลาคม", "shortName": "ต.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-10-31" },
-          { "id": 11, "name": "พฤศจิกายน", "shortName": "พ.ย.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-11-30" },
-          { "id": 12, "name": "ธันวาคม", "shortName": "ธ.ค.", "link": "https://www.mwa.co.th", "active": true, "updatedAt": "2567-12-31" }
-        ]
-      }
-    ]
-  }
-  </script>
-
   <script>
-    let appData = null;
+    // ฐานข้อมูลเริ่มต้น เพื่อให้แสดงผลทันที 0ms แม้จะอยู่ใน iframe ข้ามโดเมน หรือออฟไลน์
+    const DEFAULT_DATA = {
+      defaultYear: "2568",
+      years: [
+        {
+          year: "2568",
+          months: [
+            { id: 1, name: "มกราคม", shortName: "ม.ค.", link: "https://www.mwa.co.th", active: true },
+            { id: 2, name: "กุมภาพันธ์", shortName: "ก.พ.", link: "https://www.mwa.co.th", active: true },
+            { id: 3, name: "มีนาคม", shortName: "มี.ค.", link: "", active: false },
+            { id: 4, name: "เมษายน", shortName: "เม.ย.", link: "", active: false },
+            { id: 5, name: "พฤษภาคม", shortName: "พ.ค.", link: "", active: false },
+            { id: 6, name: "มิถุนายน", shortName: "มิ.ย.", link: "", active: false },
+            { id: 7, name: "กรกฎาคม", shortName: "ก.ค.", link: "", active: false },
+            { id: 8, name: "สิงหาคม", shortName: "ส.ค.", link: "", active: false },
+            { id: 9, name: "กันยายน", shortName: "ก.ย.", link: "", active: false },
+            { id: 10, name: "ตุลาคม", shortName: "ต.ค.", link: "", active: false },
+            { id: 11, name: "พฤศจิกายน", shortName: "พ.ย.", link: "", active: false },
+            { id: 12, name: "ธันวาคม", shortName: "ธ.ค.", link: "", active: false }
+          ]
+        },
+        {
+          year: "2567",
+          months: [
+            { id: 1, name: "มกราคม", shortName: "ม.ค.", link: "https://www.mwa.co.th", active: true },
+            { id: 2, name: "กุมภาพันธ์", shortName: "ก.พ.", link: "https://www.mwa.co.th", active: true },
+            { id: 3, name: "มีนาคม", shortName: "มี.ค.", link: "https://www.mwa.co.th", active: true },
+            { id: 4, name: "เมษายน", shortName: "เม.ย.", link: "https://www.mwa.co.th", active: true },
+            { id: 5, name: "พฤษภาคม", shortName: "พ.ค.", link: "https://www.mwa.co.th", active: true },
+            { id: 6, name: "มิถุนายน", shortName: "มิ.ย.", link: "https://www.mwa.co.th", active: true },
+            { id: 7, name: "กรกฎาคม", shortName: "ก.ค.", link: "https://www.mwa.co.th", active: true },
+            { id: 8, name: "สิงหาคม", shortName: "ส.ค.", link: "https://www.mwa.co.th", active: true },
+            { id: 9, name: "กันยายน", shortName: "ก.ย.", link: "https://www.mwa.co.th", active: true },
+            { id: 10, name: "ตุลาคม", shortName: "ต.ค.", link: "https://www.mwa.co.th", active: true },
+            { id: 11, name: "พฤศจิกายน", shortName: "พ.ย.", link: "https://www.mwa.co.th", active: true },
+            { id: 12, name: "ธันวาคม", shortName: "ธ.ค.", link: "https://www.mwa.co.th", active: true }
+          ]
+        }
+      ]
+    };
+
+    let appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
     let currentSelectedYear = '';
 
-    // Initialize Application
+    // ฟังก์ชันอ่าน LocalStorage แบบปลอดภัย (ป้องกัน error SecurityError เมื่ออยู่ใน iframe ข้ามโดเมน)
+    function safeGetLocalStorage(key) {
+      try {
+        if (typeof window !== 'undefined' && 'localStorage' in window) {
+          return window.localStorage.getItem(key);
+        }
+      } catch (e) {
+        console.warn('LocalStorage blocked in iframe (cross-origin):', e);
+      }
+      return null;
+    }
+
+    // เริ่มต้นระบบ
     async function initApp() {
-      // 1. Try to load data from localStorage (if edited recently in admin on same device) or fetch data.json
-      let localOverride = localStorage.getItem('mwa_report_data_override');
+      // 1. ตรวจสอบปีจาก URL Query Parameter เช่น ?year=2567
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const paramYear = urlParams.get('year');
+        if (paramYear) {
+          currentSelectedYear = paramYear;
+        }
+      } catch (e) {}
+
+      // 2. แสดงผลทันทีด้วยข้อมูลเริ่มต้น
+      renderData();
+
+      // 3. ตรวจสอบข้อมูลจาก LocalStorage (ถ้าเคยแก้ไขใน admin เครื่องนี้)
+      const localOverride = safeGetLocalStorage('mwa_report_data_override');
       if (localOverride) {
         try {
-          appData = JSON.parse(localOverride);
-        } catch(e) {
-          console.warn('Failed parsing local override', e);
-        }
+          const parsed = JSON.parse(localOverride);
+          if (parsed && parsed.years && parsed.years.length > 0) {
+            appData = parsed;
+            renderData();
+          }
+        } catch(e) {}
       }
 
-      if (!appData) {
-        try {
-          // Fetch data.json with cache buster
-          const res = await fetch('./data.json?v=' + Date.now());
-          if (res.ok) {
-            appData = await res.json();
-          } else {
-            throw new Error('HTTP ' + res.status);
-          }
-        } catch (err) {
-          console.warn('Could not fetch data.json, falling back to embedded dataset', err);
-          const fallbackEl = document.getElementById('fallback-data');
-          if (fallbackEl) {
-            appData = JSON.parse(fallbackEl.textContent);
+      // 4. พยายาม fetch data.json ตัวจริงล่าสุดจากเซิร์ฟเวอร์
+      try {
+        const res = await fetch('./data.json?v=' + Date.now());
+        if (res.ok) {
+          const remoteData = await res.json();
+          if (remoteData && remoteData.years && remoteData.years.length > 0) {
+            appData = remoteData;
+            renderData();
           }
         }
+      } catch (err) {
+        // หากเปิดผ่าน file:/// หรือออฟไลน์ จะใช้ข้อมูลเริ่มต้นที่แสดงไว้แล้วอย่างราบรื่น
       }
+    }
 
-      if (!appData || !appData.years || appData.years.length === 0) {
-        document.getElementById('monthsGrid').innerHTML = `
-          <div class="empty-state">
-            <i class="fa-regular fa-folder-open empty-icon"></i>
-            <div class="empty-text">ไม่พบข้อมูลปีรายงาน กรุณาตรวจสอบการตั้งค่า</div>
-          </div>
-        `;
-        return;
-      }
-
-      // Check URL search param for ?year=2568
-      const urlParams = new URLSearchParams(window.location.search);
-      const paramYear = urlParams.get('year');
+    function renderData() {
+      if (!appData || !appData.years || appData.years.length === 0) return;
 
       const availableYears = appData.years.map(y => y.year);
-      if (paramYear && availableYears.includes(paramYear)) {
-        currentSelectedYear = paramYear;
-      } else {
+      if (!currentSelectedYear || !availableYears.includes(currentSelectedYear)) {
         currentSelectedYear = appData.defaultYear || appData.years[0].year;
       }
 
@@ -587,23 +595,24 @@
       notifyParentHeight();
     }
 
-    // Render Year Select and Tabs
+    // สร้างเมนูเลือกปี
     function renderYearControls() {
       const yearSelect = document.getElementById('yearSelect');
       const yearTabs = document.getElementById('yearTabs');
+      if (!yearSelect || !yearTabs) return;
 
       yearSelect.innerHTML = '';
       yearTabs.innerHTML = '';
 
       appData.years.forEach(item => {
-        // Option
+        // Dropdown Option
         const opt = document.createElement('option');
         opt.value = item.year;
         opt.textContent = `ปี ${item.year}`;
         if (item.year === currentSelectedYear) opt.selected = true;
         yearSelect.appendChild(opt);
 
-        // Tab Button (show up to 4 most recent years as pills)
+        // Tab Button
         const tabBtn = document.createElement('button');
         tabBtn.type = 'button';
         tabBtn.className = `year-tab-btn ${item.year === currentSelectedYear ? 'active' : ''}`;
@@ -615,12 +624,12 @@
       yearSelect.onchange = (e) => selectYear(e.target.value);
     }
 
-    // Select Year Action
+    // ฟังก์ชันเปลี่ยนปี
     function selectYear(year) {
       currentSelectedYear = year;
-      document.getElementById('yearSelect').value = year;
+      const yearSelect = document.getElementById('yearSelect');
+      if (yearSelect) yearSelect.value = year;
 
-      // Update tabs active state
       const tabs = document.querySelectorAll('.year-tab-btn');
       tabs.forEach(t => {
         t.classList.toggle('active', t.textContent.includes(year));
@@ -630,9 +639,12 @@
       notifyParentHeight();
     }
 
-    // Render 12 Months
+    // แสดงผลการ์ด 12 เดือน
     function renderMonthsGrid() {
       const grid = document.getElementById('monthsGrid');
+      const statBadge = document.getElementById('statText');
+      if (!grid) return;
+
       const yearObj = appData.years.find(y => y.year === currentSelectedYear);
 
       if (!yearObj || !yearObj.months || yearObj.months.length === 0) {
@@ -642,7 +654,7 @@
             <div class="empty-text">ยังไม่มีข้อมูลรายงานของปี ${currentSelectedYear}</div>
           </div>
         `;
-        document.getElementById('statText').textContent = '0 รายการ';
+        if (statBadge) statBadge.textContent = '0 รายการ';
         return;
       }
 
@@ -694,22 +706,29 @@
         grid.appendChild(card);
       });
 
-      // Update badge stat
-      document.getElementById('statText').textContent = `เผยแพร่แล้ว ${activeCount}/12 เดือน`;
+      if (statBadge) {
+        statBadge.textContent = `เผยแพร่แล้ว ${activeCount}/12 เดือน`;
+      }
     }
 
-    // Auto notify parent iframe of height for seamless embed
+    // ปรับความสูง iframe อัตโนมัติไปยังหน้าเว็บหลัก
     function notifyParentHeight() {
       setTimeout(() => {
-        const height = document.body.scrollHeight;
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: 'mwa-iframe-resize', height: height }, '*');
-        }
-      }, 100);
+        try {
+          const height = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'mwa-iframe-resize', height: height }, '*');
+          }
+        } catch (e) {}
+      }, 50);
     }
 
     window.addEventListener('resize', notifyParentHeight);
-    window.addEventListener('load', initApp);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
   </script>
 </body>
 </html>
