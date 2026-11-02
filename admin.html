@@ -395,9 +395,178 @@
       from { opacity: 0; transform: translateY(-4px); }
       to { opacity: 1; transform: translateY(0); }
     }
+    /* PIN Lock Screen Overlay */
+    .pin-lock-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, #092340 0%, #041224 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      padding: 20px;
+    }
+
+    .pin-card {
+      background: #09223e;
+      border: 1.5px solid #16406e;
+      border-radius: 20px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 370px;
+      text-align: center;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(10, 60, 110, 0.35);
+      position: relative;
+      animation: pinCardFadeIn 0.3s ease;
+    }
+
+    .pin-logo-badge {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #e2f8fc 60%, #b8f0fa 100%);
+      border: 3.5px solid #6ae3f7;
+      box-shadow: 0 0 22px rgba(106, 227, 247, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 18px auto;
+      color: #034b7b;
+      font-weight: 800;
+      font-size: 1.35rem;
+      letter-spacing: 0.5px;
+    }
+
+    .pin-subtitle-top {
+      color: #38bdf8;
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .pin-title {
+      color: #ffffff;
+      font-size: 1.85rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .pin-description {
+      color: #94a3b8;
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+      font-family: 'Sarabun', sans-serif;
+    }
+
+    .pin-input {
+      width: 100%;
+      height: 58px;
+      background: #06172d;
+      border: 1.5px solid #206193;
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 2rem;
+      letter-spacing: 14px;
+      text-align: center;
+      outline: none;
+      transition: all 0.25s;
+      font-family: 'Prompt', monospace, sans-serif;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
+      margin-bottom: 12px;
+    }
+
+    .pin-input:focus {
+      border-color: #53ddf3;
+      box-shadow: 0 0 0 3px rgba(83, 221, 243, 0.25), inset 0 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .pin-submit-btn {
+      width: 100%;
+      height: 48px;
+      background: #54e0f5;
+      color: #033659;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Prompt', sans-serif;
+      box-shadow: 0 4px 14px rgba(84, 224, 245, 0.3);
+    }
+
+    .pin-submit-btn:hover {
+      background: #73e7f8;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(84, 224, 245, 0.45);
+    }
+
+    .pin-submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .pin-error-msg {
+      color: #f87171;
+      font-size: 0.85rem;
+      min-height: 22px;
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .shake-anim {
+      animation: pinShake 0.4s ease-in-out;
+    }
+
+    @keyframes pinShake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    @keyframes pinCardFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
+
+  <!-- PIN Lock Screen Overlay (ตรงตามดีไซน์ กปน.) -->
+  <div id="pinLockScreen" class="pin-lock-overlay">
+    <div class="pin-card" id="pinCard">
+      <div class="pin-logo-badge">
+        <span>กปน.</span>
+      </div>
+      <div class="pin-subtitle-top">สำหรับผู้ดูแลระบบ</div>
+      <h1 class="pin-title">กรอกรหัส PIN</h1>
+      <p class="pin-description">ใส่รหัสตัวเลข 4 หลักเพื่อแก้ไขข้อมูล</p>
+
+      <form id="pinForm" onsubmit="handlePinSubmit(event)">
+        <input 
+          type="password" 
+          id="pinInput" 
+          class="pin-input" 
+          maxlength="4" 
+          pattern="[0-9]*" 
+          inputmode="numeric" 
+          autocomplete="off" 
+          autofocus 
+          required 
+        />
+        <div id="pinError" class="pin-error-msg"></div>
+        <button type="submit" class="pin-submit-btn">
+          เข้าสู่ระบบ
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Main Dashboard Container (ซ่อนจนกว่าจะปลดล็อค PIN) -->
+  <div id="adminAppContent" style="display: none;">
 
   <!-- Navigation -->
   <nav class="navbar">
@@ -415,6 +584,9 @@
       </button>
       <button type="button" class="btn btn-success" onclick="openSavePublishModal()">
         <i class="fa-solid fa-cloud-arrow-up"></i> บันทึก / เผยแพร่ขึ้นเว็บ
+      </button>
+      <button type="button" class="btn btn-outline btn-sm" onclick="lockAdminSession()" title="ออกจากระบบ / ล็อคหน้าจัดการ">
+        <i class="fa-solid fa-lock"></i> ออกจากระบบ
       </button>
     </div>
   </nav>
@@ -638,7 +810,71 @@
     </div>
   </div>
 
+  </div> <!-- End #adminAppContent -->
+
   <script>
+    // รหัส PIN สำหรับเข้าสู่ระบบผู้ดูแลระบบ (ตรงตามที่กำหนด)
+    const ADMIN_PIN = "2468";
+
+    // ตรวจสอบสถานะการยืนยันตัวตน (Session)
+    function checkAuthSession() {
+      const isAuth = sessionStorage.getItem('mwa_admin_auth') === 'true';
+      const pinOverlay = document.getElementById('pinLockScreen');
+      const adminApp = document.getElementById('adminAppContent');
+
+      if (isAuth) {
+        if (pinOverlay) pinOverlay.style.display = 'none';
+        if (adminApp) adminApp.style.display = 'block';
+      } else {
+        if (pinOverlay) pinOverlay.style.display = 'flex';
+        if (adminApp) adminApp.style.display = 'none';
+        setTimeout(() => {
+          const input = document.getElementById('pinInput');
+          if (input) input.focus();
+        }, 100);
+      }
+    }
+
+    // จัดการเมื่อกดส่งรหัส PIN
+    function handlePinSubmit(event) {
+      if (event) event.preventDefault();
+      const input = document.getElementById('pinInput');
+      const errorMsg = document.getElementById('pinError');
+      const card = document.getElementById('pinCard');
+      const enteredPin = input ? input.value.trim() : '';
+
+      if (enteredPin === ADMIN_PIN) {
+        sessionStorage.setItem('mwa_admin_auth', 'true');
+        if (errorMsg) errorMsg.textContent = '';
+        checkAuthSession();
+        initAdmin();
+      } else {
+        if (errorMsg) errorMsg.textContent = 'รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง';
+        if (card) {
+          card.classList.remove('shake-anim');
+          void card.offsetWidth; // force DOM reflow for re-triggering animation
+          card.classList.add('shake-anim');
+        }
+        if (input) {
+          input.value = '';
+          input.focus();
+        }
+      }
+    }
+
+    // ออกจากระบบ / ล็อคหน้าจอทันที
+    function lockAdminSession() {
+      sessionStorage.removeItem('mwa_admin_auth');
+      const input = document.getElementById('pinInput');
+      const errorMsg = document.getElementById('pinError');
+      if (input) input.value = '';
+      if (errorMsg) errorMsg.textContent = '';
+      checkAuthSession();
+    }
+
+    // ตรวจสอบทันทีที่สคริปต์ทำงาน
+    checkAuthSession();
+
     const DEFAULT_MONTH_NAMES = [
       { id: 1, name: "มกราคม", shortName: "ม.ค." },
       { id: 2, name: "กุมภาพันธ์", shortName: "ก.พ." },
@@ -1131,7 +1367,12 @@
       document.getElementById('alertBanner').style.display = 'none';
     }
 
-    window.addEventListener('load', initAdmin);
+    window.addEventListener('load', function() {
+      checkAuthSession();
+      if (sessionStorage.getItem('mwa_admin_auth') === 'true') {
+        initAdmin();
+      }
+    });
   </script>
 </body>
 </html>
